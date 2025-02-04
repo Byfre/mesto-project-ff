@@ -21,6 +21,9 @@ const editFormElement = editModal.querySelector('.popup__form');
 const nameInput = editFormElement.querySelector('.popup__input_type_name');
 const jobInput = editFormElement.querySelector('.popup__input_type_description');
 
+const profileTitle = document.querySelector('.profile__title');
+const profileDescription = document.querySelector('.profile__description');
+
 const addFormElement = addModal.querySelector('.popup__form');
 const placeNameInput = addFormElement.querySelector('.popup__input_type_card-name');
 const placeLinkInput = addFormElement.querySelector('.popup__input_type_url');
@@ -30,9 +33,6 @@ function handleEditFormSubmit(evt) {
   evt.preventDefault();
   const newName = nameInput.value;
   const newJob = jobInput.value;
-  const profileTitle = document.querySelector('.profile__title');
-  const profileDescription = document.querySelector('.profile__description');
-
   profileTitle.textContent = newName;
   profileDescription.textContent = newJob;
 
@@ -65,8 +65,6 @@ addFormElement.addEventListener('submit', handleAddFormSubmit);
 // Обработчики событий для открытия модальных окон
 editButton.addEventListener('click', () => {
   // Подставляем в форму значения из профиля
-  const profileTitle = document.querySelector('.profile__title');
-  const profileDescription = document.querySelector('.profile__description');
   const nameInput = editModal.querySelector('.popup__input_type_name');
   const descriptionInput = editModal.querySelector('.popup__input_type_description');
 
@@ -90,7 +88,6 @@ closeButtons.forEach(button => {
 
 // Функция открытия изображения
 function openImage(data) {
-  const imageModal = document.querySelector('.popup_type_image');
   const popupImage = imageModal.querySelector('.popup__image');
   const popupCaption = imageModal.querySelector('.popup__caption');
 
