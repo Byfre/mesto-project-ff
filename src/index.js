@@ -1,7 +1,7 @@
 import './pages/index.css';
 
 import { openModal, closeModal } from "./scripts/components/modal.js";
-import { createCard } from "./scripts/components/card.js";
+import { createCard, removeCard, likeButtonToggler } from "./scripts/components/card.js";
 import { enableValidation, clearValidation } from './scripts/components/validation.js';
 import { getUserInfo, getCards, updateUserInfo, addNewCard, deleteCardApi, likeCardApi, unlikeCardApi, updateAvatar } from './scripts/components/api.js';
 
@@ -21,7 +21,7 @@ const avatarModal = document.querySelector('.popup_type_avatar');
 // Формы и их поля
 const editFormElement = editModal.querySelector('.popup__form');
 const nameInput = editFormElement.querySelector('.popup__input_type_name');
-const jobInput = editFormElement.querySelector('.popup__input_type_description');
+const descriptionInput = editModal.querySelector('.popup__input_type_description');
 
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
@@ -35,6 +35,8 @@ const avatarForm = avatarModal.querySelector('.popup__form');
 const avatarUrlInput = avatarForm.querySelector('.popup__input_type_url');
 const profileAvatar = document.querySelector('.profile__image');
 
+const popupImage = imageModal.querySelector('.popup__image');
+const popupCaption = imageModal.querySelector('.popup__caption');
 
 // 1. Функции, взаимодействующие с сервером
 
@@ -44,7 +46,7 @@ function handleEditFormSubmit(evt) {
   const submitButton = evt.submitter;
   submitButton.textContent = 'Сохранение...';
 
-  updateUserInfo(nameInput.value, jobInput.value)
+  updateUserInfo(nameInput.value, descriptionInput.value)
     .then((userData) => {
       // Обновляем данные из ответа сервера
       profileTitle.textContent = userData.name;
@@ -76,6 +78,8 @@ function handleAddFormSubmit(evt) {
       closeModal(addModal);
       // Очистка формы
       addFormElement.reset();
+      // Очищаем ошибки валидации
+      clearValidation(addFormElement, validationConfig);
     })
     .catch(error => {
       console.log(error);
@@ -119,7 +123,7 @@ function likeCard(evt, cardId) {
       .then(updatedCard => {
         // Обновляем данные из ответа сервера
         likeCount.textContent = updatedCard.likes.length;
-        evt.target.classList.toggle('card__like-button_is-active');
+        likeButtonToggler(likeButton);
       })
       .catch(error => {
         console.log(error);
@@ -130,7 +134,7 @@ function likeCard(evt, cardId) {
       .then(updatedCard => {
         // Обновляем данные из ответа сервера
         likeCount.textContent = updatedCard.likes.length;
-        evt.target.classList.toggle('card__like-button_is-active');
+        likeButtonToggler(likeButton);
       })
       .catch(error => {
         console.log(error);
@@ -144,7 +148,7 @@ function deleteCard(evt, cardId) {
 
   deleteCardApi(cardId)
     .then(() => {
-      cardElement.remove();
+      removeCard(cardElement);
     })
     .catch(error => {
       console.log(error);
@@ -156,9 +160,6 @@ function deleteCard(evt, cardId) {
 // Обработчики событий для открытия модальных окон
 editButton.addEventListener('click', () => {
   // Подставляем в форму значения из профиля
-  const nameInput = editModal.querySelector('.popup__input_type_name');
-  const descriptionInput = editModal.querySelector('.popup__input_type_description');
-
   nameInput.value = profileTitle.textContent;
   descriptionInput.value = profileDescription.textContent;
 
@@ -169,8 +170,6 @@ editButton.addEventListener('click', () => {
 });
 
 addButton.addEventListener('click', () => {
-  // Очищаем ошибки валидации
-  clearValidation(addFormElement, validationConfig);
   // Открываем окно 
   openModal(addModal);
 });
@@ -184,9 +183,6 @@ profileAvatar.addEventListener('click', () => {
 
 // Функция открытия изображения
 function openImage(data) {
-  const popupImage = imageModal.querySelector('.popup__image');
-  const popupCaption = imageModal.querySelector('.popup__caption');
-
   popupImage.src = data.link;
   popupImage.alt = data.name;
   popupCaption.textContent = data.name;
@@ -206,10 +202,6 @@ closeButtons.forEach(button => {
 
 // Функция для отрисовки профиля
 const renderUserProfile = (userData) => {
-  const profileTitle = document.querySelector('.profile__title');
-  const profileDescription = document.querySelector('.profile__description');
-  const profileAvatar = document.querySelector('.profile__image');
-
   profileTitle.textContent = userData.name;
   profileDescription.textContent = userData.about;
   profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
@@ -225,7 +217,7 @@ function renderCards(cards, currentUserId) {
 
 //  Загрузка информации о пользователе и карточках. Отрисовка в случае, если получены
 //  и те и другие данные.
-const promise = Promise.all([getUserInfo(), getCards()])
+Promise.all([getUserInfo(), getCards()])
   .then(([userData, cards]) => {
     renderUserProfile(userData);
     renderCards(cards, userData._id);

@@ -40,4 +40,15 @@ function createCard(data, deleteCardHandler, likeCardHandler, openImageHandler, 
   return cardElement;
 }
 
-export { createCard };
+// Функция удаления карточки из разметки
+function removeCard(card) {
+  card.remove();
+}
+
+// Функция переключения лайка
+function likeButtonToggler(button) {
+  button.classList.toggle('card__like-button_is-active');
+}
+
+
+export { createCard, removeCard, likeButtonToggler };
